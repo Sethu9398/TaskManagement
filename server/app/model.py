@@ -16,6 +16,7 @@ class Users(Base):
 
     password = Column(String(255), nullable=False)
 
+    role = Column(String(20), default="user", nullable=False)
 
     created_at = Column(
         DateTime,
@@ -29,7 +30,6 @@ class Users(Base):
         onupdate=datetime.datetime.utcnow,
         nullable=False,
     )
-
     
 
 
