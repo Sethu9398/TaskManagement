@@ -32,6 +32,10 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: str
-    role: str
     created_at: datetime
     updated_at: datetime
+
+
+# Fields returned for the currently authenticated user (GET /user/me)
+class UserMeResponse(UserResponse):
+    role: str

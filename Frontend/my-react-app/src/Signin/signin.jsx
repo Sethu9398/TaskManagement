@@ -1,9 +1,12 @@
 import { useState } from "react";
-import axios from "axios"
+import { data, useNavigate } from "react-router-dom";
+import api from "../api";
+import { saveStoredUser } from "../lib/authStorage";
 
 const Signin = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -13,28 +16,35 @@ const Signin = () => {
     const user = {
       email: formData.get("email"),
       password: formData.get("password"),
+      role:formData.get("role")
     };
 
     try {
       setLoading(true);
       setMessage("");
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/user/login",
-        user,
-      );
+      const response = await api.post("/user/login", user);
 
       console.log("Signin response:", response.data);
 
-      
       setMessage("Sign in successful!");
 
-      localStorage.setItem("user", JSON.stringify(user));
+      // The login response carries only email and role, so read the full
+      // profile (name, email, role) from the session endpoint before saving it.
+      try {
+        const profile = await api.get("/user/me");
+        saveStoredUser(profile.data);
+      } catch {
+        saveStoredUser({
+          email: response.data.email,
+          role: response.data.role,
+        });
+      }
 
-      // Add your dashboard navigation here if needed
-      // Example: window.location.href = "/dashboard";
-    } 
-    catch (error) {
+      // The session cookie is set by the server on this origin, so the
+      // protected route can revalidate it after navigation or a refresh.
+      navigate("/", { replace: true });
+    } catch (error) {
       console.error("Signin error:", error);
 
       if (error.response) {
@@ -45,19 +55,16 @@ const Signin = () => {
             error.response.data?.message ||
             `Login failed with status ${error.response.status}`,
         );
-      } 
-      else if (error.request) {
+      } else if (error.request) {
         // Request was sent but no response was received
         setMessage(
           "Cannot connect to the backend. Check that FastAPI is running at http://127.0.0.1:8000.",
         );
-      } 
-      else {
+      } else {
         // Request setup error
         setMessage(error.message || "An unexpected error occurred.");
       }
-    } 
-    finally {
+    } finally {
       setLoading(false);
     }
   };
