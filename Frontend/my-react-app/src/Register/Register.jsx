@@ -1,6 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
+import { saveStoredUser } from "../lib/authStorage";
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
@@ -22,14 +23,17 @@ const Register = () => {
       setLoading(true);
       setMessage("");
 
-      const response = await axios.post(
-        "http://127.0.0.1:8000/user/register",
-        user,
-      );
+      const response = await api.post("/user/register", user);
 
       console.log("Registration response:", response.data);
 
-      localStorage.setItem("user", JSON.stringify(user));
+      // Public registration always creates a normal user; keep the same
+      // shape the sign-in flow stores so consumers see one consistent object.
+      saveStoredUser({
+        name: response.data.name ?? user.name,
+        email: response.data.email ?? user.email,
+        role: response.data.role ?? "user",
+      });
 
 
       setMessage(response.data.message || "Registration successful!");

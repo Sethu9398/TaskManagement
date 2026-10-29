@@ -1,12 +1,17 @@
 import bcrypt
 
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.model import Users
-from app.schema import UserCreate, UserResponse, UserLogin
+from app.schema import UserCreate, UserResponse, UserLogin, UserMeResponse
 from app.database import get_db
+from ..jwt_handler import (
+    create_access_token,
+    verify_access_token,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
@@ -90,7 +95,11 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=UserLogin)
-def login(data: UserLogin, db: Session = Depends(get_db)):
+def login(
+    data: UserLogin,
+    response: Response,
+    db: Session = Depends(get_db),
+):
 
     # Find user by email
     user = db.query(Users).filter(Users.email == str(data.email)).first()
@@ -104,8 +113,49 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
     if not password_is_valid:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
+    token = create_access_token(user)
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,  # Local HTTP development only
+        samesite="lax",
+        max_age=7 * 24 * 60 * 60,
+        path="/",
+    )
+
     # Return only email and password fields
     return {"email": user.email, "password": data.password, "role": user.role}
+
+
+@router.get("/me", response_model=UserMeResponse)
+def get_current_user(
+    user_id: str = Depends(verify_access_token),
+    db: Session = Depends(get_db),
+):
+    """Return the user behind the access_token cookie.
+
+    The frontend calls this on every protected page load, which is what keeps
+    the session alive across navigation and page refreshes.
+    """
+    try:
+        user_pk = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
+    user = db.query(Users).filter(Users.id == user_pk).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User no longer exists",
+        )
+
+    return user
 
 
 @router.post(
