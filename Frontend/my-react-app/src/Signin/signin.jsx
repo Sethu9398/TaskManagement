@@ -30,12 +30,16 @@ const Signin = () => {
       setMessage("Sign in successful!");
 
       // The login response carries only email and role, so read the full
-      // profile (name, email, role) from the session endpoint before saving it.
+      // profile (id, name, email, role) from the session endpoint before
+      // saving it. The fallback stores the id as null instead of keeping a
+      // value from a previous session, which could belong to another account.
       try {
         const profile = await api.get("/user/me");
         saveStoredUser(profile.data);
-      } catch {
+      } 
+      catch {
         saveStoredUser({
+          id: response.data.id,
           email: response.data.email,
           role: response.data.role,
         });
@@ -44,7 +48,8 @@ const Signin = () => {
       // The session cookie is set by the server on this origin, so the
       // protected route can revalidate it after navigation or a refresh.
       navigate("/", { replace: true });
-    } catch (error) {
+    } 
+    catch (error) {
       console.error("Signin error:", error);
 
       if (error.response) {
@@ -55,12 +60,14 @@ const Signin = () => {
             error.response.data?.message ||
             `Login failed with status ${error.response.status}`,
         );
-      } else if (error.request) {
+      } 
+      else if (error.request) {
         // Request was sent but no response was received
         setMessage(
           "Cannot connect to the backend. Check that FastAPI is running at http://127.0.0.1:8000.",
         );
-      } else {
+      } 
+      else {
         // Request setup error
         setMessage(error.message || "An unexpected error occurred.");
       }

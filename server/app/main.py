@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from .database import engine, Base
+from app.database import engine, Base
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from .router.userRouter import router as user_router
+from .router.taskRouter import router as task_router
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -39,3 +40,4 @@ def home():
 
 
 app.include_router(user_router)
+app.include_router(task_router)

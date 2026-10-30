@@ -1,4 +1,3 @@
-
 import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
@@ -42,7 +41,11 @@ class Tasks(Base):
 
     description = Column(Text, nullable=True)
 
-    isComplete = Column(Boolean, default="false")
+    is_complete = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
 
     user_id = Column(
         Integer,
@@ -63,3 +66,4 @@ class Tasks(Base):
         onupdate=datetime.datetime.utcnow,
         nullable=False,
     )
+

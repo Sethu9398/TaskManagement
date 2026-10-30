@@ -28,8 +28,10 @@ const Register = () => {
       console.log("Registration response:", response.data);
 
       // Public registration always creates a normal user; keep the same
-      // shape the sign-in flow stores so consumers see one consistent object.
+      // shape the sign-in flow stores so consumers see one consistent object,
+      // including the id assigned by the database.
       saveStoredUser({
+        id: response.data.id,
         name: response.data.name ?? user.name,
         email: response.data.email ?? user.email,
         role: response.data.role ?? "user",

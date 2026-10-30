@@ -4,3 +4,4 @@ export const AdminDashboard=()=>{
         <div>Hi , this Admin Page</div>
     )
 }
+
