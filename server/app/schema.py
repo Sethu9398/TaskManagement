@@ -39,3 +39,28 @@ class UserResponse(BaseModel):
 # Fields returned for the currently authenticated user (GET /user/me)
 class UserMeResponse(UserResponse):
     role: str
+
+
+
+class TaskCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    description: str | None = None
+
+
+class TaskUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = None
+    is_complete: bool | None = None
+
+
+class TaskResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    description: str | None
+    is_complete: bool
+    user_id: int
+
+class TaskCompleteUpdate(BaseModel):
+    is_complete: bool

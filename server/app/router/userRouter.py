@@ -119,7 +119,7 @@ def login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # Local HTTP development only
+        secure=False,  
         samesite="lax",
         max_age=7 * 24 * 60 * 60,
         path="/",
@@ -207,3 +207,22 @@ def create_default_admin(db: Session = Depends(get_db)):
             status_code=500,
             detail="Failed to create default admin and internal error",
         )
+
+
+# Logout API (Both User and Admin)
+@router.post("/logout")
+def logout(
+    response: Response,
+    user_id: str = Depends(verify_access_token),
+):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=False,  # Change to True in production with HTTPS
+        samesite="lax",
+        path="/",
+    )
+
+    return {
+        "message": "Logged out successfully"
+    }
