@@ -1,0 +1,7 @@
+server/app/__pycache__/main.cpython-314.pyc
+server/app/__pycache__/model.cpython-314.pyc
+server/app/__pycache__/schema.cpython-314.pyc
+server/app/router/__pycache__/taskRouter.cpython-314.pyc
+server/app/router/__pycache__/userRouter.cpython-314.pyc
+Frontend/my-react-app/node_modules
+

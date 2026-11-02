@@ -20,7 +20,7 @@ export const saveStoredUser = ({ id, name, email, role } = {}) => {
     id: normalizeId(id),
     name: name ?? "",
     email: email ?? "",
-    role: role ?? "user",
+    role: role ?? "",
   };
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
