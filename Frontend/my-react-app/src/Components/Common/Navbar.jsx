@@ -11,7 +11,7 @@ const CommonNavbar = ({ role }) => {
     }`;
 
   return (
-    <nav className="navbar navbar-expand-lg bg-light shadow-sm px-4 py-2">
+    <nav className="navbar navbar-expand-lg bg-light shadow-sm px-4 py-2 fixed-top">
       {/* Left Side - Logo */}
       <a className="navbar-brand d-flex align-items-center" href="/">
         <img src={logo} alt="Logo" height="40" />
