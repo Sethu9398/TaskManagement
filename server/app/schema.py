@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
 # Fields required when creating a user
@@ -54,6 +54,7 @@ class TaskUpdate(BaseModel):
 
 
 class TaskResponse(BaseModel):
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -62,5 +63,16 @@ class TaskResponse(BaseModel):
     is_complete: bool
     user_id: int
 
+    created_at: datetime
+    updated_at: datetime
+
+    @computed_field
+    @property
+    def status(self) -> str:
+
+        return "Completed" if self.is_complete else "In-Process"
+
+
+    
 class TaskCompleteUpdate(BaseModel):
     is_complete: bool
