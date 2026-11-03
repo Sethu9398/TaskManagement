@@ -3,6 +3,7 @@ import bcrypt
 from fastapi import Depends, APIRouter, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from .taskRouter import get_authenticated_user_id
 
 from app.model import Users
 from app.schema import UserCreate, UserResponse, UserLogin, UserMeResponse
@@ -119,7 +120,7 @@ def login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  
+        secure=False,
         samesite="lax",
         max_age=7 * 24 * 60 * 60,
         path="/",
@@ -223,6 +224,30 @@ def logout(
         path="/",
     )
 
-    return {
-        "message": "Logged out successfully"
-    }
+    return {"message": "Logged out successfully"}
+
+
+@router.get("/allUsers", response_model=list[UserResponse])
+def get_all_users(
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_authenticated_user_id),
+):
+   
+
+    current_user = db.query(Users).filter(Users.id == user_id).first()
+
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+
+    users = db.query(Users).order_by(Users.id.desc()).all()
+
+    return users

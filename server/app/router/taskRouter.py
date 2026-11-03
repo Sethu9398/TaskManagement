@@ -202,3 +202,51 @@ def get_all_users_tasks(
     tasks = db.query(Tasks).order_by(Tasks.created_at.desc()).all()
 
     return tasks
+
+@router.get(
+    "/admin/allTasks/{task_id}",
+    response_model=TaskResponse,
+)
+def get_admin_single_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_authenticated_user_id),
+):
+    from app.model import Users
+
+    # 1. Verify logged-in user
+    current_user = (
+        db.query(Users)
+        .filter(Users.id == user_id)
+        .first()
+    )
+
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    # 2. Verify admin role
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+
+    # 3. Get task without filtering by user_id
+    task = (
+        db.query(Tasks)
+        .filter(Tasks.id == task_id)
+        .first()
+    )
+
+    # 4. Check task exists
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
+
+    return task
+

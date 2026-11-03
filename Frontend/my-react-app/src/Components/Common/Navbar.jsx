@@ -34,7 +34,7 @@ const CommonNavbar = ({ role }) => {
       setShowDropdown(false);
 
       // Navigate to login page
-      navigate("/singin");
+      navigate("/signin");
     } catch (error) {
       console.error("Logout error:", error);
 
