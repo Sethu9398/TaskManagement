@@ -7,7 +7,7 @@ from fastapi import Cookie, HTTPException, status
 
 SECRET_KEY = "REPLACE_WITH_A_LONG_RANDOM_SECRET"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 7 * 24 * 60
 
 
 def create_access_token(user):
