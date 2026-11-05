@@ -23,6 +23,14 @@ const UserDashboard = () => {
     };
 
     fetchTasks();
+
+    // Listen for task changes
+    window.addEventListener("taskUpdated", fetchTasks);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener("taskUpdated", fetchTasks);
+    };
   }, []);
 
   // Calculate task counts
