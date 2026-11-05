@@ -36,6 +36,9 @@ const CreateTaskModal = ({ onClose }) => {
       // Change endpoint if your backend uses a different URL
       await api.post("task/create", formData);
 
+       // Notify all listening pages that tasks have changed
+    window.dispatchEvent(new Event("taskUpdated"));
+
       alert("Task created successfully!");
 
       setFormData({

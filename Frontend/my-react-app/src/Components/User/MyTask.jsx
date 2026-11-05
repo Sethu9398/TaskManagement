@@ -33,6 +33,13 @@ const MyTask = () => {
 
   useEffect(() => {
     fetchTasks();
+    // Listen for task changes
+    window.addEventListener("taskUpdated", fetchTasks);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener("taskUpdated", fetchTasks);
+    };
   }, []);
 
   // Search and filter tasks
